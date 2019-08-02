@@ -1,0 +1,46 @@
+ eclipse插件开发中常使用命令来声明实现一个菜单，具体步骤是:1.声明一个命令；2.创建使用该命令的菜单项;3.创建该命令对应的处理器(handler)。 
+    
+    1.通过org.eclipse.ui.commands扩展点声明一个command，每个command即为一个ui功能点的声明。 
+    声明一个category来管理自己建的commands： 
+    id:cn.com.aquarion.category 
+    name:MyCategory 
+    description: My command's group 
+    声明一个command用于打开视图： 
+    id:com.aquarion.commands.openView 
+    name:Open my view 
+    categoryId:cn.com.aquarion.category 
+
+    2.通过org.eclipse.ui.menus扩展点创建使用命令的菜单项 
+    声明一个menuContribution，定义command出现的位置，并定义它的可见性 
+    locationURI：menu:org.eclipse.ui.main.menu?after=additions；该命令将出现的位置，这个标识该菜单项为新建并出现在主菜单栏中 
+    在menuContribution下声明一个menu 
+    label：Fav 
+    id:com.aquarion.menus.viewMenu 
+    mnemonic:v;表示键盘可访问性 
+    在menu下使用一个命令 
+    commandId：com.aquarion.commands.openView，即在选中该菜单触发的command 
+    id：com.aquarion.menu.openView 
+    mnemonic:O 
+    icon:图标 
+
+    经过以上两步，运行该插件可以看到菜单项和菜单已经出现在主菜单中。如果需要菜单项出现在工具栏中，可以将locationURI的值改成toolbar:org.eclipse.ui.main.toolbar?after=additon 
+这个属性为标识菜单出现的位置，所以我们也可以将我们定义的菜单声明在已有的菜单下，里例如说将菜单新建到已有的eclipse的菜单中,locationURI的值可以如以下定义： 
+    menu:help?after=additions 
+    menu:navigate?after=open.ext2 
+    menu:window?after=newEditor 
+    menu:file?after=open.ext 
+    
+    由上面的例子中看到locationURI分成三部分：模式(scheme),例如menu：、标识符(identifier)例如：help和参数列表(argument list)例如after=additions 
+    
+    scheme标识新建项将被添加至的UI对象类型，它可以是以下的值： 
+    menu：程序的主菜单或视图的下拉菜单 
+    popup:视图或编辑器的上下文菜单 
+    toolbar:程序的工具栏或视图的工具栏 
+    
+    标识符(ID)：对于任意视图，这个标识符与它的工具栏的标识符或上下文菜单的标识符或下拉菜单的标识符的其中一个一致。常用的有： 
+    org.eclipse.ui.main.menu------------eclipse的主菜单标识符 
+    org.eclipse.ui.main.toolbar---------eclipse主工具栏的标识符 
+    org.eclipse.ui.popup.any------------任意上下文菜单 
+
+    argument list：允许给新建项的位置进行细粒度的定义。after和before为新建项的布局，“=”，最后为菜单，上下文菜单或工具栏的某一项的标识符。最后的标识符也可以为additions，表示新建项处于默认位置。 
+    

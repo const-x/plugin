@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension point="org.eclipse.ui.popupMenus">
+      <!-- #TextEditorContext -->
+      <viewerContribution targetID="#CompilationUnitEditorContext" id="idv.constx.popup.actions.GeterAndSetterAction">
+         <menu label="拓展工具" icon="./icons/logo-s.ico" path="additions" id="idv.constx.popup.actions.editoer"
+          definitionId="definitionId.idv.constx.popup.actions.editoer">
+            <separator name="java"></separator>
+         </menu>
+         <action label="getter and setter" tooltip="getter and setter" id="idv.constx.popup.actions.GeterAndSetterAction"  class="idv.constx.popup.actions.GeterAndSetterAction" 
+              menubarPath="idv.constx.popup.actions.editoer/java" icon="./icons/logo-s.ico" style="push"  > 
+         </action>
+          <action label="toString json" tooltip="toString json" id="idv.constx.popup.actions.ToStringAction"  class="idv.constx.popup.actions.ToStringAction" 
+              menubarPath="idv.constx.popup.actions.editoer/java" icon="./icons/logo-s.ico" style="push"  > 
+         </action>
+      </viewerContribution>
+   </extension>
+   
+   <extension point="org.eclipse.ui.commands"> 
+       <!--注意这里的Id 与 action的 definitionId 对应 -->   
+       <command  id="definitionId.idv.constx.popup.actions.editoer" /> 
+   </extension>
+   <extension point="org.eclipse.ui.bindings">  
+      <!-- org.eclipse.ui.textEditorScope -->     
+       <key sequence="Alt+U"
+                     contextId="org.eclipse.ui.textEditorScope"
+                     commandId="definitionId.idv.constx.popup.actions.editoer"
+                     schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" />
+   </extension>
+
+</plugin>

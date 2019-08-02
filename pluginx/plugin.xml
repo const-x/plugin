@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension point="org.eclipse.ui.popupMenus">
+      <!-- 这个菜单java resources 目录下无效-->
+      <objectContribution objectClass="org.eclipse.core.resources.IFile" id="pluginx.object" nameFilter="*.java">
+         <menu label="资源文件菜单" icon="./images/logo-l.png" path="additions" id="pluginx.explorer">
+            <separator name="group1"></separator>
+         </menu>
+         <!-- enablesFor 1 单个文件, multiple -->
+         <!-- menubarPath 注意与menu中的 id对应 -->
+         <action label="ExploerAction"  class="pluginx.popup.actions.ExploerAction" menubarPath="pluginx.explorer/group1" enablesFor="multiple" id="pluginx.ExploerAction">
+         </action>
+      </objectContribution>
+      
+      <objectContribution objectClass="org.eclipse.jdt.core.ICompilationUnit">
+         <menu label="java元素菜单" path="additions" icon="./images/logo-l.png" id="pluginx.java">
+            <separator name="group1"></separator>
+         </menu>
+         <!-- enablesFor 1 单个文件, multiple 2個及以上-->
+         <action label="ExploerAction"  class="pluginx.popup.actions.ExploerAction" menubarPath="pluginx.java/group1" enablesFor="1" id="pluginx.ExploerAction">
+         </action>
+      </objectContribution>
+    </extension>
+
+   
+   <!--
+   <extension point="org.eclipse.jdt.ui.javaCompletionProposalComputer" 
+		   id="com.msun.plug.assist.JavaProposalComputer" 
+		   name="JavaProposalComputer"> 
+		<javaCompletionProposalComputer class="pluginx.popup.actions.JavaProposalComputer" 
+									activate="true" needsSortingAfterFiltering="true"> 
+			<partition type="__java_string"/>  
+			<partition type="__java_javadoc"/>  
+			<partition type="__dftl_partition_content_type"/> 
+		</javaCompletionProposalComputer> 
+	</extension>	
+-->
+   
+   
+   
+</plugin>

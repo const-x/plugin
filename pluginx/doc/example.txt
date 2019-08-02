@@ -1,0 +1,568 @@
+ 
+
+IActionDelegate的子类型有IWorkbenchWindowActionDelegate为工作台窗口的菜单栏和工具栏提供生命周期事件，还有：
+
+IEditorActionDelegate为编辑器中的操作提供生命周期事件；
+
+IObjectActionDelegate为快捷键相关联的操作代理提供生命周期事件；
+
+IViewActionDelegate为视图中的操作提供生命周期事件；
+
+ 
+
+ 
+
+IWorkbenchWindowActionDelegate接口中的方法：
+
+//每次执行该操作时，都会执行该方法，init方法只有第一次才会执行，后面就不会执行了
+
+public void run(IAction action) 
+
+//当用户焦点离开该操作创建的视图等等时，会执行该方法
+
+public void selectionChanged(IAction action, ISelection selection) 
+
+//该关闭eclipse时，才会调用该方法
+
+public void dispose()
+
+//当第一次执行该操作时，创建该对象后，首先执行init方法，然后执行run方法
+
+public void init(IWorkbenchWindow window) 
+
+
+ 
+
+ 
+
+操作可以在许多地方出现，如菜单栏、工具栏和上下文菜单，它丰富了编辑器的功能，增强的用户的体验。
+
+eclipse中的操作既可以通过扩展点定义，也可以通过代码定义。
+
+ 
+
+工具栏的按钮被分为多个组，每个组叫一个操作集（action set），用来集合一组相关的操作。
+
+ 
+
+操作集扩展的使用（该扩展点主要是为了添加菜单栏和工具栏按钮的）：
+
+<extension
+
+         point="org.eclipse.ui.actionSets">
+
+      <actionSet
+
+            //引用该操作的唯一标识符
+
+            id="com.plugindev.addressbook.actionSet"
+
+            //出现在window->customize perspective 中的标识符
+
+            label="地址本操作"
+
+            //表示初始状态是否可见
+
+            visible="true">
+
+         //用于定义出现在菜单栏中的菜单
+
+         <menu
+
+               //菜单的唯一标识符
+
+               id="AddressBookMenu"
+
+               //菜单的名称，还有个属性path表示在何处插入此菜单
+
+               label="地址本">
+
+            <separator name="content"/>
+
+         </menu>
+
+         定义操作
+
+         <action
+
+               //操作的代理，必须实现IWorkbenchWindowActionDelegate或者               //IWorkbenchWindowPulldownActionDelegate(实现下拉式的工具栏按钮)
+
+               class="com.plugindev.addressbook.actions.OpenAddressViewAction"
+
+               //操作的命令标识符，将该操作绑定到哪个命令上
+
+               definitionId="com.plugindev.addressbook.commands.openAddressView"
+
+               //与该操作关联的图像，出现在工具栏
+
+               icon="icons/sample.gif"
+
+               引用该操作的唯一标识符
+
+               id="com.plugindev.addressbook.actions.OpenAddressViewAction"
+
+               //出现在菜单中的名称
+
+               label="打开视图"
+
+               //表示操作出现在菜单栏中的位置，表示出入到上面定义菜单的content中
+
+               menubarPath="AddressBookMenu/content"
+
+               //表示操作出现工具栏中的位置，Normal为工具栏的标识符，addition是工具栏中的组
+
+               toolbarPath="Normal/addition"
+
+               //用于工具栏按钮的提示信息
+
+               tooltip="在当前透视图中打开地址本视图"/>
+
+      </actionSet>
+
+   </extension>
+
+ 
+
+ 
+
+ 
+
+视图操作包含视图上下文菜单、视图工具栏按钮、视图工具栏的下拉菜单。这些操作都可以通过编程的方式来实现。
+
+popupMenus扩展点，可以为插件添加上下文菜单，并提供需要的菜单项。
+
+ 
+
+<extension
+
+         point="org.eclipse.ui.popupMenus">
+
+      //与上下文特点对象相关联的操作，只有选择该对象才会出现该菜单
+
+      <objectContribution
+
+            //默认为fasle，指出适配IResource对象可接受的目标
+
+            adaptable="false"
+
+            //此操作的唯一标识符
+
+            id="com.plugindev.addressbook.example.objectActionTest"
+
+            //过滤器，表示可接受的目标名称
+
+            nameFilter="T*"
+
+            //表示可接受的目标类型，类型必须是String，其他类型不行
+
+            objectClass="java.lang.String">
+
+         <menu
+
+               id="exampleMenu"
+
+               label="示例菜单"
+
+               path="additions">
+
+            <separator name="example"/>
+
+         </menu>
+
+         <action
+
+               //操作代理类，必须实现IObjectActionDelegate接口
+
+               class="com.plugindev.addressbook.example.ObjExampleAction"
+
+               //表示多选是否也支持该操作，+表示支持，1表示不支持
+
+               enablesFor="1"
+
+               id="com.plugindev.addressbook.objExampleAction"
+
+               label="对象示例操作"
+
+               menubarPath="exampleMenu/example"
+
+               tooltip="举例说明如何添加对象操作"/>
+
+      </objectContribution>
+
+</extension>
+
+ 
+
+IObjectActionDelegate接口中方法的调用时机：
+
+//右键选择目标对象时，先调用这个方法后再调用select，每次右键选择都会执行这2个方法
+
+public void setActivePart(IAction action, IWorkbenchPart targetPart)
+
+public void selectionChanged(IAction action, ISelection selection)
+
+//选择相应菜单项时，执行该方法
+
+public void run(IAction action) 
+
+ 
+
+ 
+
+ 
+
+<extension
+
+         point="org.eclipse.ui.popupMenus">
+
+  //为视图添加上下文菜单，针对所有的对象
+
+  <viewerContribution
+
+            id="com.plugindev.addressbook.example.viewerActionTest"
+
+            //表示为哪个视图提供操作
+
+            targetID="com.plugindev.addressbook.views.AddressView">
+
+         <menu
+
+               id="com.plugindev.viewToolbarMenu"
+
+               label="示例工具栏菜单"
+
+               path="additions">
+
+            <separator name="example"/>
+
+         </menu>
+
+         <action
+
+               //操作代理类必须实现IViewActionDelegate接口
+
+               class="com.plugindev.addressbook.example.ViewerExampleAction"
+
+               enablesFor="+"
+
+               id="com.plugindev.addressbook.viewerExampleAction"
+
+               label="查看器示例操作"
+
+               menubarPath="com.plugindev.viewToolbarMenu/example"
+
+               tooltip="举例说明如何添加查看器操作"/>
+
+      </viewerContribution>
+
+</extension>
+
+ 
+
+ 
+
+ 
+
+<extension
+
+         point="org.eclipse.ui.popupMenus">
+
+ //为编辑器的上下文菜单提供操作
+
+ <viewerContribution
+
+            id="com.plugindev.addressbook.example.editorActionTest"
+
+            //表示为哪个编辑器提供上下文菜单，在此表示eclipse默认的文本编辑器
+
+            targetID="#TextEditorContext">
+
+         <menu
+
+               id="com.plugindev.defaultEditorMenu"
+
+               label="示例编辑器菜单"
+
+               path="additions">
+
+            <separator name="example"/>
+
+         </menu>
+
+         <action
+
+               //操作代理类必须实现IEditorActionDelegate接口
+
+               class="com.plugindev.addressbook.example.EditorExampleAction"
+
+               icon="icons/sample.gif"
+
+               id="com.plugindev.addressbook.editorExampleAction"
+
+               label="编辑器操作"
+
+               menubarPath="com.plugindev.defaultEditorMenu/example"
+
+               tooltip="举例说明如何添加编辑器操作"/>
+
+      </viewerContribution>
+
+</extension>
+
+ 
+
+//用户定义编辑器的上下文菜单
+
+<viewerContribution
+
+            id="com.plugindev.addressbook.example.editorActionTest"
+
+            targetID="#TextEditorContext">
+
+         <menu
+
+               id="com.plugindev.defaultEditorMenu"
+
+               label="示例编辑器菜单"
+
+               path="additions">
+
+            <separator name="example1"/>
+
+            <separator name="example2"/>
+
+         </menu>
+
+//只有action的ID不同，可以放置多个action，并定义它在菜单中出现的位置
+
+         <action
+
+               class="com.plugindev.addressbook.example.EditorExampleAction"
+
+               icon="icons/sample.gif"
+
+               id="com.plugindev.addressbook.editorExampleAction"
+
+               label="编辑器操作2"
+
+               menubarPath="com.plugindev.defaultEditorMenu/example1"
+
+               tooltip="举例说明如何添加编辑器操作"/>
+
+          <action
+
+               class="com.plugindev.addressbook.example.EditorExampleAction"
+
+               icon="icons/sample.gif"
+
+               id="com.plugindev.addressbook.editorExampleAction2"
+
+               label="编辑器操作2"
+
+               menubarPath="com.plugindev.defaultEditorMenu/example2"
+
+               tooltip="举例说明如何添加编辑器操作"/>
+
+      </viewerContribution>
+
+ 
+
+ 
+
+ 
+
+ 
+
+//此扩展点用于添加视图工具栏按钮
+
+ <extension
+
+         point="org.eclipse.ui.viewActions">
+
+      //要和viewerContribution区别开来
+
+      <viewContribution
+
+            id="com.plugindev.addressbook.example.viewActionTest"
+
+            targetID="com.plugindev.addressbook.views.AddressView">
+
+         <action
+
+               //操作代理类必须实现IViewActionDelegate接口
+
+               class="com.plugindev.addressbook.example.ViewExampleAction"
+
+               icon="icons/sample.gif"
+
+               id="com.plugindev.addressbook.viewExampleAction"
+
+               label="视图操作"
+
+               menubarPath="com.plugindev.addressViewPullDownMenu/example"
+
+               style="push"
+
+               toolbarPath="additions"
+
+               tooltip="举例说明如何添加视图操作"/>
+
+         <menu
+
+               id="com.plugindev.addressViewPullDownMenu"
+
+               label="下拉菜单示例"
+
+               path="addtions">
+
+            <separator name="example"/>
+
+         </menu>
+
+      </viewContribution>
+
+   </extension>
+
+      </editorContribution>
+
+   </extension>
+
+ 
+
+ 
+
+为编辑器添加顶层工作台菜单和工具栏按钮，要扩展org.eclipse.ui.editorActions扩展点。与org.eclipse.ui.actionSets扩展点不同，后者对任何视图都可见，前者只对定义的
+
+ 
+
+视图可见。
+
+<extension
+
+         point="org.eclipse.ui.editorActions">
+
+      <editorContribution
+
+            id="com.plugindev.addressbook.example.editorActionTest"
+
+            //定义对默认的文本编辑器显示顶层菜单和工具栏
+
+            targetID="org.eclipse.ui.DefaultTextEditor">
+
+         <menu
+
+               id="com.plugindev.defaultEditorMenu"
+
+               label="顶层编辑器菜单"
+
+               path="additions">
+
+            <separator name="example"/>
+
+         </menu>
+
+         <action
+
+               //操作代理必须实现IEditorActionDelegate接口
+
+               class="com.plugindev.addressbook.example.TopEditorAction"
+
+               icon="icons/sample.gif"
+
+               id="com.plugindev.addressbook.TopEditorAction"
+
+               label="顶层编辑操作"
+
+               menubarPath="com.plugindev.defaultEditorMenu/example"
+
+               style="push"
+
+               toolbarPath="Normal/additions"
+
+               tooltip="编辑器操作示例"/>
+
+      </editorContribution>
+
+   </extension>
+
+ 
+
+ 
+
+键绑定策略
+
+ 
+
+命令是键序列与相应操作之间的桥梁，当按下快捷键时，通过命令就可以找到相应的操作
+
+操作通过定义 definitionId来与命令ID相关联，绑定通过定义commandId与命令ID相关联
+
+ 
+
+<extension
+
+         point="org.eclipse.ui.commands">
+
+      //定义命令所属的类别
+
+      <category
+
+            description="地址本插件添加的命令"
+
+            id="com.plugindev.addressbook.commands"
+
+            name="地址本"/>
+
+      <command
+
+            categoryId="com.plugindev.addressbook.commands"
+
+            description="打开地址本视图"
+
+            id="com.plugindev.addressbook.commands.openAddressView"
+
+            name="打开地址本"/>
+
+      <command
+
+            categoryId="com.plugindev.addressbook.commands"
+
+            description="打开地址本视图222"
+
+            id="com.plugindev.addressbook.commands.openAddressView22"
+
+            name="打开地址本222"/>
+
+   </extension>
+
+   <extension
+
+         point="org.eclipse.ui.bindings">
+
+      <key
+
+            commandId="com.plugindev.addressbook.commands.openAddressView"
+
+            contextId="org.eclipse.ui.contexts.window"
+
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+
+            sequence="CTRL+SHIFT+V"/>
+
+       <key
+
+            commandId="com.plugindev.addressbook.commands.openAddressView22"
+
+            //激活键序列时的上下文环境
+
+            contextId="org.eclipse.ui.contexts.window"
+
+            //激活键序列所使用的配置
+
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+
+            //键序列
+
+            sequence="CTRL+SHIFT+V"/>
+
+   </extension>

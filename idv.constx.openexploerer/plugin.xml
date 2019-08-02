@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+    <!--  commands 定义模式  -->
+   <extension point="org.eclipse.ui.commands"> 
+       <command name="打开文件位置"  id="commands.idv.constx.handler.OpenExplorerHandler" /> 
+   </extension>
+   <extension point="org.eclipse.ui.handlers"> 
+      <handler  class="idv.constx.handler.OpenExplorerHandler"
+                commandId="commands.idv.constx.handler.OpenExplorerHandler"> 
+      </handler> 
+  </extension>
+  <extension point="org.eclipse.ui.bindings">  
+       <key sequence="Ctrl+O"
+            contextId="org.eclipse.ui.contexts.window"
+            commandId="commands.idv.constx.handler.OpenExplorerHandler"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" />
+  </extension>
+   <extension point="org.eclipse.ui.menus" > 
+      <menuContribution allPopups="false" locationURI="popup:org.eclipse.ui.popup.any?after=additions">  
+         <command commandId="commands.idv.constx.handler.OpenExplorerHandler" icon="./icons/logo-s.ico" style="push" >
+             <visibleWhen>
+                <iterate iterateifEmpty="false" >
+                   <or>
+                       <instanceof value="org.eclipse.jdt.core.IJavaElement" />
+                       <instanceof value="org.eclipse.core.resources.IFile" />
+                       <instanceof value="org.eclipse.core.resources.IResource" />
+                   </or>
+                </iterate>
+             </visibleWhen>
+         </command>
+     </menuContribution> 
+      <menuContribution  locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">  
+          <toolbar  id="idv.constx.EditToolbar">
+	            <command commandId="commands.idv.constx.handler.OpenExplorerHandler" icon="./icons/logo-s.ico" style="push" >
+	            </command>
+         </toolbar>
+     </menuContribution> 
+   </extension> 
+
+</plugin>
